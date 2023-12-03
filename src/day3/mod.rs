@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
+use std::task::Wake;
 
 pub fn problem() -> Option<usize> {
     let input_file = File::open("src/day3/input.txt").unwrap();
@@ -92,32 +93,18 @@ fn check_sym_with_gear(
     y: usize,
     num_len: usize,
 ) -> Option<SymInfo> {
-    let y_start;
-    let y_end;
-    let x_start;
-    let x_end;
-
-    if y == 0 {
-        y_start = 0;
-        y_end = y + 2;
-    } else if y == schematic.len() - 1 {
-        y_start = y - 1;
-        y_end = schematic.len()
+    let y_start = if y == 0 { 0 } else { y - 1 };
+    let y_end = if y == schematic.len() - 1 {
+        schematic.len()
     } else {
-        y_start = y - 1;
-        y_end = y + 2;
-    }
-
-    if x - num_len == 0 {
-        x_start = 0;
-        x_end = x + 1;
-    } else if x == schematic.len() {
-        x_start = x - num_len - 1;
-        x_end = schematic.len()
+        y + 2
+    };
+    let x_start = if x - num_len == 0 { 0 } else { x - num_len - 1 };
+    let x_end = if x == schematic.len() {
+        schematic.len()
     } else {
-        x_start = x - num_len - 1;
-        x_end = x + 1;
-    }
+        x + 1
+    };
 
     for b in y_start..y_end {
         for a in x_start..x_end {
@@ -142,12 +129,11 @@ fn check_sym_with_gear(
 fn part2(schematic: Vec<String>) -> Option<usize> {
     let x_limit = schematic[0].len() - 1;
     let mut num_found = "".to_string();
-    let schema_clone = schematic.clone();
     let mut gear_hash: HashMap<(usize, usize), usize> = HashMap::new();
     let mut gear_ratios: Vec<usize> = Vec::new();
 
     for y in 0..schematic.len() {
-        let row = schema_clone.get(y)?;
+        let row = schematic.get(y)?.clone();
         for x in 0..row.len() {
             let cell = row.chars().nth(x)?;
             if cell.is_numeric() {
@@ -159,12 +145,12 @@ fn part2(schematic: Vec<String>) -> Option<usize> {
                     {
                         let parsed_num = num_found.parse::<usize>().unwrap();
                         if found_sym.symbol == "*" {
-                            if gear_hash.contains_key(&(found_sym.x?, found_sym.y?)) {
-                                gear_ratios
-                                    .push(gear_hash[&(found_sym.x?, found_sym.y?)] * parsed_num);
-                            } else {
-                                gear_hash.insert((found_sym.x?, found_sym.y?), parsed_num);
-                            }
+                            gear_hash
+                                .entry((found_sym.x?, found_sym.y?))
+                                .and_modify(|val| {
+                                    gear_ratios.push(*val * parsed_num);
+                                })
+                                .or_insert(parsed_num);
                         }
                     }
                     num_found.clear()
