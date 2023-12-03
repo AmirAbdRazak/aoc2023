@@ -7,7 +7,7 @@ pub fn problem() -> u64 {
     let game_list: Vec<String> = reader.lines().filter_map(Result::ok).collect();
 
     println!("Part 1 answer: {}", part1(game_list.clone()));
-    part1(game_list)
+    part2(game_list)
 }
 
 pub fn part1(game_list: Vec<String>) -> u64 {
@@ -18,38 +18,75 @@ pub fn part1(game_list: Vec<String>) -> u64 {
     game_list
         .into_iter()
         .filter(|game| {
-            let mut red = 0;
-            let mut green = 0;
-            let mut blue = 0;
-
+            let mut is_valid = true;
             game.split(":")
                 .map(|s| s.to_string())
                 .collect::<Vec<String>>()[1]
                 .split(";")
                 .for_each(|data| {
-                    let parsed_data: Vec<&str> = data.split(" ").collect();
-                    let color: &str = parsed_data[0];
-                    let num = parsed_data[1].parse::<i32>().unwrap();
-
-                    if color == "red" {
-                        red += num;
-                    } else if color == "blue" {
-                        blue += num;
-                    } else if color == "green" {
-                        green += num;
-                    }
+                    data.split(",")
+                        .collect::<Vec<&str>>()
+                        .into_iter()
+                        .for_each(|count_data| {
+                            let c = count_data.split(" ").collect::<Vec<&str>>();
+                            let color = c[2];
+                            let num = c[1].parse::<i32>().unwrap();
+                            if (color == "red" && num > red_limit)
+                                || (color == "blue" && num > blue_limit)
+                                || (color == "green" && num > green_limit)
+                            {
+                                is_valid = false;
+                            }
+                        })
                 });
 
-            red <= red_limit && green <= green_limit && blue <= blue_limit
+            is_valid
         })
         .map(|game| {
-            game.split(":")
+            let count = game
+                .split(":")
                 .map(|s| s.to_string())
                 .collect::<Vec<String>>()[0]
                 .split(" ")
                 .collect::<Vec<&str>>()[1]
                 .parse::<u64>()
-                .unwrap()
+                .unwrap();
+
+            count
+        })
+        .sum()
+}
+
+pub fn part2(game_list: Vec<String>) -> u64 {
+    game_list
+        .into_iter()
+        .map(|game| {
+            let mut red_max = 0;
+            let mut green_max = 0;
+            let mut blue_max = 0;
+            game.split(":")
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>()[1]
+                .split(";")
+                .for_each(|data| {
+                    data.split(",")
+                        .collect::<Vec<&str>>()
+                        .into_iter()
+                        .for_each(|count_data| {
+                            let c = count_data.split(" ").collect::<Vec<&str>>();
+                            let color = c[2];
+                            let num = c[1].parse::<i32>().unwrap();
+                            if color == "red" && num > red_max {
+                                red_max = num;
+                            } else if color == "green" && num > green_max {
+                                green_max = num;
+                            } else if color == "blue" && num > blue_max {
+                                blue_max = num;
+                            }
+                        })
+                });
+
+            red_max as u64 * green_max as u64 * blue_max as u64
         })
         .sum()
 }
