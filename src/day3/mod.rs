@@ -143,7 +143,8 @@ fn part2(schematic: Vec<String>) -> Option<usize> {
     let x_limit = schematic[0].len() - 1;
     let mut num_found = "".to_string();
     let schema_clone = schematic.clone();
-    let mut gear_hash: HashMap<(usize, usize), Vec<u64>> = HashMap::new();
+    let mut gear_hash: HashMap<(usize, usize), usize> = HashMap::new();
+    let mut gear_ratios: Vec<usize> = Vec::new();
 
     for y in 0..schematic.len() {
         let row = schema_clone.get(y)?;
@@ -156,12 +157,14 @@ fn part2(schematic: Vec<String>) -> Option<usize> {
                     if let Some(found_sym) =
                         check_sym_with_gear(schematic.clone(), x + 1, y, num_found.len())
                     {
-                        let parsed_num = num_found.parse::<u64>().unwrap();
+                        let parsed_num = num_found.parse::<usize>().unwrap();
                         if found_sym.symbol == "*" {
-                            gear_hash
-                                .entry((found_sym.x?, found_sym.y?))
-                                .and_modify(|v| v.push(parsed_num))
-                                .or_insert(vec![parsed_num]);
+                            if gear_hash.contains_key(&(found_sym.x?, found_sym.y?)) {
+                                gear_ratios
+                                    .push(gear_hash[&(found_sym.x?, found_sym.y?)] * parsed_num);
+                            } else {
+                                gear_hash.insert((found_sym.x?, found_sym.y?), parsed_num);
+                            }
                         }
                     }
                     num_found.clear()
@@ -170,14 +173,5 @@ fn part2(schematic: Vec<String>) -> Option<usize> {
         }
     }
 
-    let final_sum = gear_hash
-        .values()
-        .filter(|values| values.len() == 2)
-        .map(|v| {
-            let pow = v.iter().copied().reduce(|acc, e| acc * e).unwrap();
-            return pow as usize;
-        })
-        .sum();
-
-    Some(final_sum)
+    Some(gear_ratios.iter().sum())
 }
