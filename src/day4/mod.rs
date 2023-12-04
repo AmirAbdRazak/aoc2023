@@ -79,7 +79,7 @@ pub fn part2(card_games: Vec<String>) -> Option<usize> {
             .map(|(idx, val)| {
                 let curr_copies = copies_map[&idx];
                 (idx + 1..idx + val + 1).for_each(|i| {
-                    copies_map.entry(i).and_modify(|v| *v += curr_copies * 1);
+                    copies_map.entry(i).and_modify(|v| *v += curr_copies);
                 });
 
                 curr_copies
