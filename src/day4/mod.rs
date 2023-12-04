@@ -64,11 +64,13 @@ pub fn part2(card_games: Vec<String>) -> Option<usize> {
             Some(winning_cards.iter().filter(|(_, v)| **v).count())
         })
         .collect::<Vec<usize>>();
-    let mut copies_map: HashMap<usize, usize> = HashMap::new();
 
-    for i in 0..copies.len() {
-        copies_map.insert(i, 1);
-    }
+    let mut copies_map: HashMap<usize, usize> = copies
+        .clone()
+        .into_iter()
+        .enumerate()
+        .map(|(i, _)| (i, 1))
+        .collect();
 
     Some(
         copies
@@ -76,9 +78,9 @@ pub fn part2(card_games: Vec<String>) -> Option<usize> {
             .enumerate()
             .map(|(idx, val)| {
                 let curr_copies = copies_map[&idx];
-                for i in idx + 1..idx + val + 1 {
+                (idx + 1..idx + val + 1).for_each(|i| {
                     copies_map.entry(i).and_modify(|v| *v += curr_copies * 1);
-                }
+                });
 
                 curr_copies
             })
