@@ -1,5 +1,5 @@
-mod day3;
+mod day4;
 
 fn main() {
-    println!("\nAnswer for day 3 is: {:?}", day3::problem().unwrap());
+    println!("\nAnswer for day 4 is: {:?}", day4::problem().unwrap());
 }
