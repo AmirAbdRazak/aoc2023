@@ -11,9 +11,9 @@ pub fn get_data(file_name: &'static str) -> Vec<String> {
 pub fn split_helper(data_line: &str, position: usize, splitter: char) -> &str {
     data_line.split(splitter).nth(position).unwrap()
 }
-pub fn get_number_vec<T: FromStr>(data_line: &str) -> Vec<T> {
+pub fn get_number_vec<T: FromStr>(data_line: &str, splitter: Option<char>) -> Vec<T> {
     data_line
-        .split_whitespace()
+        .split(splitter.unwrap_or(' '))
         .map(T::from_str)
         .flatten()
         .collect()
