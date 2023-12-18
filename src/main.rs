@@ -1,13 +1,13 @@
-mod day14;
+mod day16;
 mod utils;
 
 fn main() {
     println!(
-        "\nAnswer for day 14 part 1 is: {:?}",
-        day14::part1().unwrap()
+        "\nAnswer for day 16 part 1 is: {:?}",
+        day16::part1().unwrap()
     );
     println!(
-        "\nAnswer for day 14 part 2 is: {:?}",
-        day14::part2().unwrap()
+        "\nAnswer for day 16 part 2 is: {:?}",
+        day16::part2().unwrap()
     );
 }
